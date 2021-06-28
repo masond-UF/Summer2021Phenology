@@ -1,0 +1,506 @@
+---
+title: "Phenology Simulation"
+author: "David S, Mason"
+date: "6/28/2021"
+output: pdf_document
+---
+In this first part, I use a Poisson distribution to generate seed arrival data for 3 months in different seasons. Then, I assign values for categorical predictors. Also, I randomly generate the fruit availability using a binomial distribution for whether or not a sampling point has fruit. Finally, I repeat this process for each species. I set the mean higher whenever the phenology of the species matches the timing of sampling.
+```{r}
+library(tidyverse)
+x <- seq(1:50)
+
+### ILGL ####
+
+# JANUARY
+# ILGL Winter burn 
+ILGL.W.Jan <- as.data.frame(rpois(7, lambda = 20))
+ILGL.W.Jan <- rename(ILGL.W.Jan, "SEEDS" = "rpois(7, lambda = 20)")
+ILGL.W.Jan$SPECIES <- "ILGL"
+ILGL.W.Jan$DATE <- "JAN"
+ILGL.W.Jan$TREATMENT <- "W"
+ILGL.W.Jan$PHENOLOGY <- "W"
+ILGL.W.Jan$LOCATION <- c("TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF")
+ILGL.W.Jan$PLOT <- c("1", "2", "3", "13", "14", "15", "16")
+ILGL.W.Jan$FA <- sum(rbinom(15,1, 0.2))/15
+
+# ILGL other burns 
+ILGL.SpSuF.Jan <- as.data.frame(rpois(21, lambda = 10))
+ILGL.SpSuF.Jan <- rename(ILGL.SpSuF.Jan, "SEEDS" = "rpois(21, lambda = 10)")
+ILGL.SpSuF.Jan$SPECIES <- "ILGL"
+ILGL.SpSuF.Jan$DATE <- "JAN"
+ILGL.SpSuF.Jan$TREATMENT <- c("SP","SP","SP","SP","SP","SP","SP",
+															"SU","SU","SU","SU","SU","SU","SU",
+															"F","F","F","F","F","F","F")
+ILGL.SpSuF.Jan$PHENOLOGY <- "W"
+ILGL.SpSuF.Jan$LOCATION <- c("TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF")
+ILGL.SpSuF.Jan$PLOT <- c("1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16")
+ILGL.SpSuF.Jan$FA <- sum(rbinom(15,1, 0.5))/15
+ILGL.Jan <- rbind(ILGL.SpSuF.Jan, ILGL.W.Jan)
+
+# JUNE 
+
+# ILGL all burns 
+ILGL.June <- as.data.frame(rpois(28, lambda = 5))
+ILGL.June <- rename(ILGL.June, "SEEDS" = "rpois(28, lambda = 5)")
+ILGL.June$SPECIES <- "ILGL"
+ILGL.June$DATE <- "JUNE"
+ILGL.June$TREATMENT <- c("SP","SP","SP","SP","SP","SP","SP",
+															"SU","SU","SU","SU","SU","SU","SU",
+															"F","F","F","F","F","F","F",
+												 "W","W","W","W","W","W","W")
+ILGL.June$PHENOLOGY <- "W"
+ILGL.June$LOCATION <- c("TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												"TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF")
+ILGL.June$PLOT <- c("1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										"1", "2", "3", "13", "14", "15", "16")
+ILGL.June$FA <- sum(rbinom(15,1, 0.5))/15
+
+# SEPT 
+
+# ILGL all burns 
+ILGL.Sept <- as.data.frame(rpois(28, lambda = 5))
+ILGL.Sept <- rename(ILGL.Sept, "SEEDS" = "rpois(28, lambda = 5)")
+ILGL.Sept$SPECIES <- "ILGL"
+ILGL.Sept$DATE <- "SEPT"
+ILGL.Sept$TREATMENT <- c("SP","SP","SP","SP","SP","SP","SP",
+															"SU","SU","SU","SU","SU","SU","SU",
+															"F","F","F","F","F","F","F",
+												 "W","W","W","W","W","W","W")
+ILGL.Sept$PHENOLOGY <- "W"
+ILGL.Sept$LOCATION <- c("TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												"TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF")
+ILGL.Sept$PLOT <- c("1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										"1", "2", "3", "13", "14", "15", "16")
+ILGL.Sept$FA <- sum(rbinom(15,1, 0.5))/15
+
+# COMBINE ILGL
+ILGL <- rbind(ILGL.Jan,ILGL.June,ILGL.Sept)
+
+### RUBUS ####
+# JUNE
+# RUBUS June burn 
+RUBUS.SU.JUNE <- as.data.frame(rpois(7, lambda = 30))
+RUBUS.SU.JUNE <- rename(RUBUS.SU.JUNE, "SEEDS" = "rpois(7, lambda = 30)")
+RUBUS.SU.JUNE$SPECIES <- "RUBUS"
+RUBUS.SU.JUNE$DATE <- "JUNE"
+RUBUS.SU.JUNE$TREATMENT <- "SU"
+RUBUS.SU.JUNE$PHENOLOGY <- "SU"
+RUBUS.SU.JUNE$LOCATION <- c("TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF")
+RUBUS.SU.JUNE$PLOT <- c("1", "2", "3", "13", "14", "15", "16")
+RUBUS.SU.JUNE$FA <- sum(rbinom(15,1, 0.2))/15
+
+# RUBUS other burns 
+RUBUS.SpFW.JUNE <- as.data.frame(rpois(21, lambda = 15))
+RUBUS.SpFW.JUNE <- rename(RUBUS.SpFW.JUNE, "SEEDS" = "rpois(21, lambda = 15)")
+RUBUS.SpFW.JUNE$SPECIES <- "RUBUS"
+RUBUS.SpFW.JUNE$DATE <- "JUNE"
+RUBUS.SpFW.JUNE$TREATMENT <- c("SP","SP","SP","SP","SP","SP","SP",
+															"W","W","W","W","W","W","W",
+															"F","F","F","F","F","F","F")
+RUBUS.SpFW.JUNE$PHENOLOGY <- "SU"
+RUBUS.SpFW.JUNE$LOCATION <- c("TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF")
+RUBUS.SpFW.JUNE$PLOT <- c("1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16")
+RUBUS.SpFW.JUNE$FA <- sum(rbinom(15,1, 0.7))/15
+RUBUS.June <- rbind(RUBUS.SU.JUNE, RUBUS.SpFW.JUNE)
+
+# January
+# Rubus JAN all burns 
+Rubus.Jan <- as.data.frame(rpois(28, lambda = 5))
+Rubus.Jan <- rename(Rubus.Jan, "SEEDS" = "rpois(28, lambda = 5)")
+Rubus.Jan$SPECIES <- "RUBUS"
+Rubus.Jan$DATE <- "JAN"
+Rubus.Jan$TREATMENT <- c("SP","SP","SP","SP","SP","SP","SP",
+															"SU","SU","SU","SU","SU","SU","SU",
+															"F","F","F","F","F","F","F",
+												 "W","W","W","W","W","W","W")
+Rubus.Jan$PHENOLOGY <- "SU"
+Rubus.Jan$LOCATION <- c("TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												"TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF")
+Rubus.Jan$PLOT <- c("1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										"1", "2", "3", "13", "14", "15", "16")
+Rubus.Jan$FA <- sum(rbinom(15,1, 0.5))/15
+
+# September
+# Rubus Sept all burns 
+Rubus.Sept <- as.data.frame(rpois(28, lambda = 10))
+Rubus.Sept <- rename(Rubus.Sept, "SEEDS" = "rpois(28, lambda = 10)")
+Rubus.Sept$SPECIES <- "RUBUS"
+Rubus.Sept$DATE <- "SEPT"
+Rubus.Sept$TREATMENT <- c("SP","SP","SP","SP","SP","SP","SP",
+															"SU","SU","SU","SU","SU","SU","SU",
+															"F","F","F","F","F","F","F",
+												 "W","W","W","W","W","W","W")
+Rubus.Sept$PHENOLOGY <- "SU"
+Rubus.Sept$LOCATION <- c("TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												"TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF")
+Rubus.Sept$PLOT <- c("1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										"1", "2", "3", "13", "14", "15", "16")
+Rubus.Sept$FA <- sum(rbinom(15,1, 0.5))/15
+
+RUBUS <- rbind(RUBUS.June, Rubus.Jan, Rubus.Sept)
+
+### RHUS ####
+# SEPT
+# RHUS Sept burn 
+RHUS.F.SEPT <- as.data.frame(rpois(7, lambda = 25))
+RHUS.F.SEPT <- rename(RHUS.F.SEPT, "SEEDS" = "rpois(7, lambda = 25)")
+RHUS.F.SEPT$SPECIES <- "RHUS"
+RHUS.F.SEPT$DATE <- "SEPT"
+RHUS.F.SEPT$TREATMENT <- "F"
+RHUS.F.SEPT$PHENOLOGY <- "F"
+RHUS.F.SEPT$LOCATION <- c("TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF")
+RHUS.F.SEPT$PLOT <- c("1", "2", "3", "13", "14", "15", "16")
+RHUS.F.SEPT$FA <- sum(rbinom(15,1, 0.24))/15
+
+# RHUS Sept other burns 
+RHUS.SpSuW.SEPT <- as.data.frame(rpois(21, lambda = 12))
+RHUS.SpSuW.SEPT <- rename(RHUS.SpSuW.SEPT, "SEEDS" = "rpois(21, lambda = 12)")
+RHUS.SpSuW.SEPT$SPECIES <- "RHUS"
+RHUS.SpSuW.SEPT$DATE <- "SEPT"
+RHUS.SpSuW.SEPT$TREATMENT <- c("SP","SP","SP","SP","SP","SP","SP",
+															"W","W","W","W","W","W","W",
+															"SU","SU","SU","SU","SU","SU","SU")
+RHUS.SpSuW.SEPT$PHENOLOGY <- "F"
+RHUS.SpSuW.SEPT$LOCATION <- c("TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF")
+RHUS.SpSuW.SEPT$PLOT <- c("1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16")
+RHUS.SpSuW.SEPT$FA <- sum(rbinom(15,1, 0.5))/15
+RHUS.Sept <- rbind(RHUS.F.SEPT, RHUS.SpSuW.SEPT)
+
+# January
+# RHUS all burns 
+Rhus.Jan <- as.data.frame(rpois(28, lambda = 8))
+Rhus.Jan <- rename(Rhus.Jan, "SEEDS" = "rpois(28, lambda = 8)")
+Rhus.Jan$SPECIES <- "RHUS"
+Rhus.Jan$DATE <- "JAN"
+Rhus.Jan$TREATMENT <- c("SP","SP","SP","SP","SP","SP","SP",
+															"SU","SU","SU","SU","SU","SU","SU",
+															"F","F","F","F","F","F","F",
+												 "W","W","W","W","W","W","W")
+Rhus.Jan$PHENOLOGY <- "F"
+Rhus.Jan$LOCATION <- c("TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												"TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF")
+Rhus.Jan$PLOT <- c("1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										"1", "2", "3", "13", "14", "15", "16")
+Rhus.Jan$FA <- sum(rbinom(15,1, 0.5))/15
+
+# June
+# RHUS all burns 
+Rhus.June <- as.data.frame(rpois(28, lambda = 9))
+Rhus.June <- rename(Rhus.June, "SEEDS" = "rpois(28, lambda = 9)")
+Rhus.June$SPECIES <- "RHUS"
+Rhus.June$DATE <- "JUNE"
+Rhus.June$TREATMENT <- c("SP","SP","SP","SP","SP","SP","SP",
+															"SU","SU","SU","SU","SU","SU","SU",
+															"F","F","F","F","F","F","F",
+												 "W","W","W","W","W","W","W")
+Rhus.June$PHENOLOGY <- "F"
+Rhus.June$LOCATION <- c("TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												"TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF")
+Rhus.June$PLOT <- c("1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										"1", "2", "3", "13", "14", "15", "16")
+Rhus.June$FA <- sum(rbinom(15,1, 0.5))/15
+
+RHGL <- rbind(Rhus.June,Rhus.Jan, RHUS.Sept)
+
+
+
+
+
+### SMRO ####
+
+# JANUARY
+# SMRO Winter burn 
+SMRO.W.Jan <- as.data.frame(rpois(7, lambda = 22))
+SMRO.W.Jan <- rename(SMRO.W.Jan, "SEEDS" = "rpois(7, lambda = 22)")
+SMRO.W.Jan$SPECIES <- "SMRO"
+SMRO.W.Jan$DATE <- "JAN"
+SMRO.W.Jan$TREATMENT <- "W"
+SMRO.W.Jan$PHENOLOGY <- "W"
+SMRO.W.Jan$LOCATION <- c("TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF")
+SMRO.W.Jan$PLOT <- c("1", "2", "3", "13", "14", "15", "16")
+SMRO.W.Jan$FA <- sum(rbinom(15,1, 0.2))/15
+
+# SMRO other burns 
+SMRO.SpSuF.Jan <- as.data.frame(rpois(21, lambda = 9))
+SMRO.SpSuF.Jan <- rename(SMRO.SpSuF.Jan, "SEEDS" = "rpois(21, lambda = 9)")
+SMRO.SpSuF.Jan$SPECIES <- "SMRO"
+SMRO.SpSuF.Jan$DATE <- "JAN"
+SMRO.SpSuF.Jan$TREATMENT <- c("SP","SP","SP","SP","SP","SP","SP",
+															"SU","SU","SU","SU","SU","SU","SU",
+															"F","F","F","F","F","F","F")
+SMRO.SpSuF.Jan$PHENOLOGY <- "W"
+SMRO.SpSuF.Jan$LOCATION <- c("TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF")
+SMRO.SpSuF.Jan$PLOT <- c("1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16")
+SMRO.SpSuF.Jan$FA <- sum(rbinom(15,1, 0.5))/15
+SMRO.Jan <- rbind(SMRO.SpSuF.Jan, SMRO.W.Jan)
+
+# JUNE 
+
+# SMRO all burns 
+SMRO.June <- as.data.frame(rpois(28, lambda = 6))
+SMRO.June <- rename(SMRO.June, "SEEDS" = "rpois(28, lambda = 6)")
+SMRO.June$SPECIES <- "SMRO"
+SMRO.June$DATE <- "JUNE"
+SMRO.June$TREATMENT <- c("SP","SP","SP","SP","SP","SP","SP",
+															"SU","SU","SU","SU","SU","SU","SU",
+															"F","F","F","F","F","F","F",
+												 "W","W","W","W","W","W","W")
+SMRO.June$PHENOLOGY <- "W"
+SMRO.June$LOCATION <- c("TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												"TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF")
+SMRO.June$PLOT <- c("1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										"1", "2", "3", "13", "14", "15", "16")
+SMRO.June$FA <- sum(rbinom(15,1, 0.5))/15
+
+# SEPT 
+
+# SMRO all burns 
+SMRO.Sept <- as.data.frame(rpois(28, lambda = 4))
+SMRO.Sept <- rename(SMRO.Sept, "SEEDS" = "rpois(28, lambda = 4)")
+SMRO.Sept$SPECIES <- "SMRO"
+SMRO.Sept$DATE <- "SEPT"
+SMRO.Sept$TREATMENT <- c("SP","SP","SP","SP","SP","SP","SP",
+															"SU","SU","SU","SU","SU","SU","SU",
+															"F","F","F","F","F","F","F",
+												 "W","W","W","W","W","W","W")
+SMRO.Sept$PHENOLOGY <- "W"
+SMRO.Sept$LOCATION <- c("TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												"TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF")
+SMRO.Sept$PLOT <- c("1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										"1", "2", "3", "13", "14", "15", "16")
+SMRO.Sept$FA <- sum(rbinom(15,1, 0.5))/15
+
+# COMBINE SMRO
+SMRO <- rbind(SMRO.Jan,SMRO.June,SMRO.Sept)
+
+### CAAM ####
+# JUNE
+# CAAM June burn 
+CAAM.SU.JUNE <- as.data.frame(rpois(7, lambda = 40))
+CAAM.SU.JUNE <- rename(CAAM.SU.JUNE, "SEEDS" = "rpois(7, lambda = 40)")
+CAAM.SU.JUNE$SPECIES <- "CAAM"
+CAAM.SU.JUNE$DATE <- "JUNE"
+CAAM.SU.JUNE$TREATMENT <- "SU"
+CAAM.SU.JUNE$PHENOLOGY <- "SU"
+CAAM.SU.JUNE$LOCATION <- c("TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF")
+CAAM.SU.JUNE$PLOT <- c("1", "2", "3", "13", "14", "15", "16")
+CAAM.SU.JUNE$FA <- sum(rbinom(15,1, 0.2))/15
+
+# CAAM other burns 
+CAAM.SpFW.JUNE <- as.data.frame(rpois(21, lambda = 18))
+CAAM.SpFW.JUNE <- rename(CAAM.SpFW.JUNE, "SEEDS" = "rpois(21, lambda = 18)")
+CAAM.SpFW.JUNE$SPECIES <- "CAAM"
+CAAM.SpFW.JUNE$DATE <- "JUNE"
+CAAM.SpFW.JUNE$TREATMENT <- c("SP","SP","SP","SP","SP","SP","SP",
+															"W","W","W","W","W","W","W",
+															"F","F","F","F","F","F","F")
+CAAM.SpFW.JUNE$PHENOLOGY <- "SU"
+CAAM.SpFW.JUNE$LOCATION <- c("TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF")
+CAAM.SpFW.JUNE$PLOT <- c("1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16")
+CAAM.SpFW.JUNE$FA <- sum(rbinom(15,1, 0.7))/15
+CAAM.June <- rbind(CAAM.SU.JUNE, CAAM.SpFW.JUNE)
+
+# January
+# CAAM JAN all burns 
+CAAM.Jan <- as.data.frame(rpois(28, lambda = 8))
+CAAM.Jan <- rename(CAAM.Jan, "SEEDS" = "rpois(28, lambda = 8)")
+CAAM.Jan$SPECIES <- "CAAM"
+CAAM.Jan$DATE <- "JAN"
+CAAM.Jan$TREATMENT <- c("SP","SP","SP","SP","SP","SP","SP",
+															"SU","SU","SU","SU","SU","SU","SU",
+															"F","F","F","F","F","F","F",
+												 "W","W","W","W","W","W","W")
+CAAM.Jan$PHENOLOGY <- "SU"
+CAAM.Jan$LOCATION <- c("TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												"TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF")
+CAAM.Jan$PLOT <- c("1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										"1", "2", "3", "13", "14", "15", "16")
+CAAM.Jan$FA <- sum(rbinom(15,1, 0.5))/15
+
+# September
+# CAAM Sept all burns 
+CAAM.Sept <- as.data.frame(rpois(28, lambda = 15))
+CAAM.Sept <- rename(CAAM.Sept, "SEEDS" = "rpois(28, lambda = 15)")
+CAAM.Sept$SPECIES <- "CAAM"
+CAAM.Sept$DATE <- "SEPT"
+CAAM.Sept$TREATMENT <- c("SP","SP","SP","SP","SP","SP","SP",
+															"SU","SU","SU","SU","SU","SU","SU",
+															"F","F","F","F","F","F","F",
+												 "W","W","W","W","W","W","W")
+CAAM.Sept$PHENOLOGY <- "SU"
+CAAM.Sept$LOCATION <- c("TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												"TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF")
+CAAM.Sept$PLOT <- c("1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										"1", "2", "3", "13", "14", "15", "16")
+CAAM.Sept$FA <- sum(rbinom(15,1, 0.5))/15
+
+CAAM <- rbind(CAAM.June, CAAM.Jan, CAAM.Sept)
+
+### PHAM ####
+# SEPT
+# PHAM Sept burn 
+PHAM.F.SEPT <- as.data.frame(rpois(7, lambda = 32))
+PHAM.F.SEPT <- rename(PHAM.F.SEPT, "SEEDS" = "rpois(7, lambda = 32)")
+PHAM.F.SEPT$SPECIES <- "PHAM"
+PHAM.F.SEPT$DATE <- "SEPT"
+PHAM.F.SEPT$TREATMENT <- "F"
+PHAM.F.SEPT$PHENOLOGY <- "F"
+PHAM.F.SEPT$LOCATION <- c("TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF")
+PHAM.F.SEPT$PLOT <- c("1", "2", "3", "13", "14", "15", "16")
+PHAM.F.SEPT$FA <- sum(rbinom(15,1, 0.24))/15
+
+# PHAM Sept other burns 
+PHAM.SpSuW.SEPT <- as.data.frame(rpois(21, lambda = 17))
+PHAM.SpSuW.SEPT <- rename(PHAM.SpSuW.SEPT, "SEEDS" = "rpois(21, lambda = 17)")
+PHAM.SpSuW.SEPT$SPECIES <- "PHAM"
+PHAM.SpSuW.SEPT$DATE <- "SEPT"
+PHAM.SpSuW.SEPT$TREATMENT <- c("SP","SP","SP","SP","SP","SP","SP",
+															"W","W","W","W","W","W","W",
+															"SU","SU","SU","SU","SU","SU","SU")
+PHAM.SpSuW.SEPT$PHENOLOGY <- "F"
+PHAM.SpSuW.SEPT$LOCATION <- c("TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF")
+PHAM.SpSuW.SEPT$PLOT <- c("1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16")
+PHAM.SpSuW.SEPT$FA <- sum(rbinom(15,1, 0.5))/15
+PHAM.Sept <- rbind(PHAM.F.SEPT, PHAM.SpSuW.SEPT)
+
+# January
+# PHAM all burns 
+PHAM.Jan <- as.data.frame(rpois(28, lambda = 5))
+PHAM.Jan <- rename(PHAM.Jan, "SEEDS" = "rpois(28, lambda = 5)")
+PHAM.Jan$SPECIES <- "PHAM"
+PHAM.Jan$DATE <- "JAN"
+PHAM.Jan$TREATMENT <- c("SP","SP","SP","SP","SP","SP","SP",
+															"SU","SU","SU","SU","SU","SU","SU",
+															"F","F","F","F","F","F","F",
+												 "W","W","W","W","W","W","W")
+PHAM.Jan$PHENOLOGY <- "F"
+PHAM.Jan$LOCATION <- c("TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												"TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF")
+PHAM.Jan$PLOT <- c("1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										"1", "2", "3", "13", "14", "15", "16")
+PHAM.Jan$FA <- sum(rbinom(15,1, 0.5))/15
+
+# June
+# PHAM all burns 
+PHAM.June <- as.data.frame(rpois(28, lambda = 12))
+PHAM.June <- rename(PHAM.June, "SEEDS" = "rpois(28, lambda = 12)")
+PHAM.June$SPECIES <- "PHAM"
+PHAM.June$DATE <- "JUNE"
+PHAM.June$TREATMENT <- c("SP","SP","SP","SP","SP","SP","SP",
+															"SU","SU","SU","SU","SU","SU","SU",
+															"F","F","F","F","F","F","F",
+												 "W","W","W","W","W","W","W")
+PHAM.June$PHENOLOGY <- "F"
+PHAM.June$LOCATION <- c("TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												 "TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF",
+												"TT", "TT", "TT", "ENF", "ENF", "ENF", "ENF")
+PHAM.June$PLOT <- c("1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										 "1", "2", "3", "13", "14", "15", "16",
+										"1", "2", "3", "13", "14", "15", "16")
+PHAM.June$FA <- sum(rbinom(15,1, 0.5))/15
+
+PHAM <- rbind(PHAM.June,PHAM.Jan, PHAM.Sept)
+
+### Bring all the species data ####
+
+d <- as.data.frame(rbind(RHGL, RUBUS, ILGL, PHAM, SMRO, CAAM))
+```
+Then, I create some figures and run a simple analysis, similar to how these are both described in the proposal. The first is a boxplot, grouped by sampling period. Within each peroid, the number of seeds from each phenology group are presented for each treatment. Next, I created a line graph tracking the number of seeds in each treatment across sampling peroids. The colors represent the phenology of the species.
+
+```{r}
+ggplot(d,aes(y=SEEDS,x=TREATMENT,color=PHENOLOGY))+
+	geom_boxplot()+
+	facet_wrap(~DATE)+
+	theme_bw()
+
+d_mean <- group_by(d, DATE, TREATMENT,PHENOLOGY) %>% 
+					summarise(mean = mean(SEEDS))
+
+ggplot(d_mean,aes(y=mean,x=DATE,group=PHENOLOGY,color=PHENOLOGY))+
+	geom_point()+
+	geom_line()+
+	facet_wrap(~TREATMENT)+
+	theme_bw()
+
+library(lme4)
+library(car)
+
+d$obs <- 1:length(d$SEEDS)
+
+mod <- glmer(SEEDS ~ FA * TREATMENT * DATE * PHENOLOGY + 
+				(1|LOCATION/PLOT) + (1|obs), family="poisson",data = d)
+
+summary(mod)  ## summary for glmmTMB negative binomial
+Anova(mod)  ## Anova table for overdispersed poisson
+
+```
